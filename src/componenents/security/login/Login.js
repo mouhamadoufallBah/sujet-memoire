@@ -1,10 +1,11 @@
-import {React, useState } from 'react';
+import { React, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import { Link, useNavigate } from 'react-router-dom';
+import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
 import firebase from '../../config/firebaseConfig'
 
-
+const auth = getAuth();
 
 const Login = () => {
     //creer les variables et leur setter pour la modification 
@@ -12,7 +13,7 @@ const Login = () => {
     const [password, setPassword] = useState('');
 
     //navigationvers les autre pages
-    const navigate = useNavigate(); 
+    const navigate = useNavigate();
 
     //fonction qui s'execute lorsqu'on appuie sur le button se connecter
     const connexion = async (e) => {
@@ -20,7 +21,21 @@ const Login = () => {
         e.preventDefault();
         try {
             //connexion avec l'utilisateur qu'on a inscrit de notre base firebase
-            await firebase.auth().signInWithEmailAndPassword(email, password);
+            const userCredential = await signInWithEmailAndPassword(auth, email, password);
+
+
+            // Récupérer l'ID de l'utilisateur connecté
+            const userId = userCredential.user.uid;
+
+            // Stocker l'ID dans le local storage
+            localStorage.setItem('userId', userId);
+
+            const user = auth.currentUser;
+
+            const nomUtilisateur = user.displayName;
+
+            // Stocker le nom d'utilisateur dans le local storage
+            localStorage.setItem('nomUtilisateur', nomUtilisateur);
 
             alert("Connexion avec succées")
 
@@ -32,7 +47,7 @@ const Login = () => {
     }
 
     return (
-   
+
         <div className='container'>
             <Form className='container'>
                 <Form.Group className="mb-3" controlId="formBasicEmail">

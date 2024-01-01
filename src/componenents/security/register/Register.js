@@ -1,31 +1,43 @@
 import React, { useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
-import { Link, useNavigate  } from 'react-router-dom';
-import firebase from '../../config/firebaseConfig'
+import { Link, useNavigate } from 'react-router-dom';
+import { getAuth, createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
+
+import firebase from '../../config/firebaseConfig';
+
+const auth = getAuth();
 
 const Register = () => {
-      //creer les variables et leur setter pour la modification 
+    //creer les variables et leur setter pour la modification 
     const [nomComplet, setNomComplet] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 
-     //navigationvers les autre pages
-     const navigate = useNavigate(); 
+    //navigationvers les autre pages
+    const navigate = useNavigate();
 
     const submit = async (e) => {
         e.preventDefault();
         try {
-            //creation d'utilisateur dans firebase
-           await firebase.auth().createUserWithEmailAndPassword(email,password);
-            alert("Inscription avec succées");
+            // Création de l'utilisateur dans Firebase
+            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+            const user = userCredential.user;
 
-            //redirection vers l'acceuil
+            // Mise à jour du profil de l'utilisateur avec le nom complet
+            await updateProfile(user, { displayName: nomComplet });
+
+            alert("Inscription avec succès");
+
+            // Redirection vers la page de connexion
             navigate('/login');
         } catch (error) {
-            alert(error)
+            // Handle error
+            console.error('Error during user registration:', error.message);
+            alert('Erreur lors de l\'inscription. Veuillez réessayer.');
         }
     }
+
     return (
         <div className='container'>
             <Form className='container'>
